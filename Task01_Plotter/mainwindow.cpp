@@ -1,5 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <iostream>
+#include "parser.h"
+#include <bits/stdc++.h>
+using namespace std;
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -15,13 +20,40 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::makePlot(){
+    string expstr = ui->textEdit->toPlainText().toStdString();
+    parser ob;
+    int minx = ui->horizontalSlider->value();
+    int maxx = ui->horizontalSlider_2->value();
     // generate some data:
-    QVector<double> x(101), y(101); // initialize with entries 0..100
-    for (int i=0; i<101; ++i)
-    {
-      x[i] = i/50.0 - 1; // x goes from -1 to 1
-      y[i] = x[i]*x[i]; // let's plot a quadratic function
+    int miny = 100000;
+    int maxy = -1000000;
+    int size = (maxx - minx)*10;
+    QVector<double> x(size+1), y(size+1); // initialize with entries 0..100
+    int index=0;
+    for (double j = minx; j < maxx; j+=0.1){
+        char finalExp[50];
+        string s = expstr;
+        for (int i = 0; i < s.length(); i++){
+            if(s[i] == 'x'){
+                s.replace(i, 1,to_string(j));
+            }
+        }
+        strcpy(finalExp, s.c_str());
+        double ans =ob.eval_exp(finalExp);
+        if(ans > maxy){
+            maxy = (int) ans;
+        }
+        if(ans < miny){
+            miny= (int) ans;
+        }
+         x[index] = j;
+         y[index] = ans;
+         index++;
+
     }
+
+
+
     // create graph and assign data to it:
     ui->customPlot->addGraph();
     ui->customPlot->graph(0)->setData(x, y);
@@ -29,8 +61,8 @@ void MainWindow::makePlot(){
     ui->customPlot->xAxis->setLabel("x");
     ui->customPlot->yAxis->setLabel("y");
     // set axes ranges, so we see all data:
-    ui->customPlot->xAxis->setRange(-1, 1);
-    ui->customPlot->yAxis->setRange(0, 1);
+    ui->customPlot->xAxis->setRange(minx, maxx);
+    ui->customPlot->yAxis->setRange(miny, maxy);
     ui->customPlot->replot();
 }
 
@@ -41,5 +73,16 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_textEdit_textChanged()
 {
-    ui->label->setText(ui->textEdit->toPlainText());
+
+}
+
+void MainWindow::on_horizontalSlider_valueChanged(int value)
+{
+
+    ui->min_label->setText(QString::number(value));
+}
+
+void MainWindow::on_horizontalSlider_2_valueChanged(int value)
+{
+    ui->max_label->setText(QString::number(value));
 }
