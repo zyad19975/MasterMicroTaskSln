@@ -39,7 +39,25 @@ void MainWindow::makePlot(){
             }
         }
         strcpy(finalExp, s.c_str());
-        double ans =ob.eval_exp(finalExp);
+        double ans;
+        try
+        {
+            ans =ob.eval_exp(finalExp);
+            string err(ob.errormsg);
+            if(!err.empty()){
+                throw err;
+            }
+
+        }catch (string err)
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Error");
+            msgBox.setInformativeText(QString::fromStdString(err));
+            msgBox.setStandardButtons(QMessageBox::Cancel);
+            msgBox.exec();
+            return;
+        }
+
         if(ans > maxy){
             maxy = (int) ans;
         }
