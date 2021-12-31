@@ -20,6 +20,7 @@ Topology::Topology(string file_path)
         device temp(TopologyJson["components"][i]);
         devices.push_back(temp);
     }
+    Raw = TopologyJson;
 }
 string Topology::getID()
 {
